@@ -14,6 +14,7 @@ const (
 func main() {
 	pokeClient := pokeapi.NewClient(TIMEOUT, CACHE_INTERVAL)
 	config := &Config{
+		caughtPokemon: map[string]pokeapi.Pokemon{},
 		pokeapiClient: pokeClient,
 	}
 

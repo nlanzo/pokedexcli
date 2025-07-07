@@ -21,12 +21,9 @@ func commandInspect(config *Config, args ...string) error {
 	fmt.Printf("Height: %d\n", pokemon.Height)
 	fmt.Printf("Weight: %d\n", pokemon.Weight)
 	fmt.Printf("Stats:\n")
-	fmt.Printf("  -hp: %v\n", pokemon.Stats[0].BaseStat)
-	fmt.Printf("  -attack: %v\n", pokemon.Stats[1].BaseStat)
-	fmt.Printf("  -defense: %v\n", pokemon.Stats[2].BaseStat)
-	fmt.Printf("  -special-attack: %v\n", pokemon.Stats[3].BaseStat)
-	fmt.Printf("  -special-defense: %v\n", pokemon.Stats[4].BaseStat)
-	fmt.Printf("  -speed: %v\n", pokemon.Stats[5].BaseStat)
+	for _, stat := range pokemon.Stats {
+		fmt.Printf("  - %s: %v\n", stat.Stat.Name, stat.BaseStat)
+	}
 
 	fmt.Printf("Types:\n")
 	for _, t := range pokemon.Types {

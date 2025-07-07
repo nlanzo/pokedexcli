@@ -1,6 +1,21 @@
 package pokecache
 
-import "time"
+import (
+	"sync"
+	"time"
+)
+
+
+type Cache struct {
+	entries map[string]CacheEntry
+	mu sync.RWMutex
+}
+
+type CacheEntry struct {
+	CreatedAt time.Time
+	Val      []byte
+}
+
 
 func NewCache(interval time.Duration) *Cache {
 	cache := Cache{
@@ -14,11 +29,11 @@ func NewCache(interval time.Duration) *Cache {
 
 func (c *Cache) Add(key string, val []byte) {
 	c.mu.Lock()
+	defer c.mu.Unlock()
 	c.entries[key] = CacheEntry{
 		CreatedAt: time.Now(),
 		Val: val,
 	}
-	c.mu.Unlock()
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
@@ -29,8 +44,9 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 }
 
 func (c *Cache) reapLoop(interval time.Duration) {
-	for {
-		time.Sleep(interval)
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for range ticker.C {
 		c.mu.Lock()
 		for k, v := range c.entries {
 			if time.Since(v.CreatedAt) > interval {

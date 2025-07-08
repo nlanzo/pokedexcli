@@ -1,11 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
+	"github.com/chzyer/readline"
 	"github.com/nlanzo/pokedexcli/internal/pokeapi"
 )
 
@@ -17,11 +18,29 @@ type Config struct {
 }
 
 func startRepl(config *Config) {
-	scanner := bufio.NewScanner(os.Stdin)
+	// Set up readline config with history size 10
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:          "Pokedex > ",
+		HistoryLimit:    10,
+		InterruptPrompt: "^C",
+		EOFPrompt:       "exit",
+	})
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Failed to initialize readline:", err)
+		os.Exit(1)
+	}
+	defer rl.Close()
+
 	for {
-		fmt.Print("Pokedex > ")
-		scanner.Scan()
-		input := scanner.Text()
+		input, err := rl.Readline()
+		if err == readline.ErrInterrupt {
+			if len(input) == 0 {
+				break
+			}
+			continue
+		} else if err == io.EOF {
+			break
+		}
 		cleanedInput := cleanInput(input)
 		if len(cleanedInput) == 0 {
 			continue
